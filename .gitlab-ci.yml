@@ -3,5 +3,5 @@ include:
 
 variables:
   BUILD_ARGS: 'APP_NAME=solarview-fb APP_ARCHIVE_URL=http://www.solarview.info/downloads/solarview-fb_neu.zip'
-  IMAGE_NAME: 'ckware/sv'
+  IMAGE_NAME: 'ckware/solarview'
   IMAGE_TITLE: 'SolarView'
