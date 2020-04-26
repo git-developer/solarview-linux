@@ -1,0 +1,6 @@
+include:
+  remote: 'https://github.com/git-developer/solarview-base/raw/develop/.gitlab-ci.yml'
+
+variables:
+  BUILD_ARGS: 'APP_NAME=solarview-fb APP_ARCHIVE_URL=http://www.solarview.info/downloads/solarview-fb_neu.zip'
+  IMAGE_NAME: 'ckware/sv'
