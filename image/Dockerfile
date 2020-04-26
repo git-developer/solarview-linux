@@ -56,7 +56,8 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl && apt-get clean && \
+RUN apt-get update && apt-get install -y curl ca-certificates && apt-get clean && \
+    dpkg-reconfigure -f noninteractive ca-certificates && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 
 WORKDIR "${APP_RUNTIME}"
