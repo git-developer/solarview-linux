@@ -49,6 +49,7 @@ RUN ln -sf "${APP_HOME}/CSmtp.sh" CSmtp
 # runtime image
 FROM ${RUNTIME_BASE_IMAGE} AS runtime
 ARG APP_NAME
+ARG DEBIAN_FRONTEND=noninteractive
 ENV APP_NAME="${APP_NAME}"
 ENV APP_HOME="/opt/${APP_NAME}"
 ENV APP_RUNTIME="/var/opt/${APP_NAME}"
