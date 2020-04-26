@@ -57,7 +57,6 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y curl && apt-get clean && \
-    update-ca-certificates -f && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 
 WORKDIR "${APP_RUNTIME}"
@@ -68,5 +67,5 @@ WORKDIR "${APP_RUNTIME}"
 # newer, it is not overwritten. This technique allows to update the binaries and
 # keep the user data without a special update mechanism.
 #
-CMD  [ "/bin/sh", "-c", "cp -u -a \"${APP_HOME}\"/* \"${APP_RUNTIME}/\" && exec \"./${APP_NAME}\" ${ARGS} -nofork" ]
+CMD  [ "/bin/sh", "-c", "cp -u -a \"${APP_HOME}\"/* \"${APP_RUNTIME}/\" && update-ca-certificates -f && exec \"./${APP_NAME}\" ${ARGS} -nofork" ]
 VOLUME "${APP_RUNTIME}"
