@@ -57,7 +57,7 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y curl && apt-get clean && \
-    ln -sf "$(which curl)" "${APP_HOME}/curl" &&
+    ln -sf "$(which curl)" "${APP_HOME}/curl" && \
     update-ca-certificates -f
 
 WORKDIR "${APP_RUNTIME}"
