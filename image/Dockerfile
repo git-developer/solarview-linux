@@ -49,14 +49,15 @@ RUN ln -sf "${APP_HOME}/CSmtp.sh" CSmtp
 # runtime image
 FROM ${RUNTIME_BASE_IMAGE} AS runtime
 ARG APP_NAME
-ARG DEBIAN_FRONTEND=noninteractive
 ENV APP_NAME="${APP_NAME}"
 ENV APP_HOME="/opt/${APP_NAME}"
 ENV APP_RUNTIME="/var/opt/${APP_NAME}"
 COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y curl && apt-get clean && \
+    update-ca-certificates -f && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 
 WORKDIR "${APP_RUNTIME}"
