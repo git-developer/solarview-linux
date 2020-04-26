@@ -59,13 +59,12 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y curl && apt-get clean && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 WORKDIR "${APP_RUNTIME}"
-RUN find /etc/ssl/certs/ -type l | wc -l && update-ca-certificates -f && find /etc/ssl/certs/ -type l | wc -l
-
-#
+# Workaround for a bug on armhf: the symlinks in /etc/ssl/certs/ with names
+# xxxxxxx.0 are missing. update-ca-certificates -f recreates them.
+RUN update-ca-certificates -f
 # When the container is started, the files from the release archive are copied to
 # a runtime directory, which is mounted to the host. When a file on the host is
 # newer, it is not overwritten. This technique allows to update the binaries and
 # keep the user data without a special update mechanism.
-#
-CMD  [ "/bin/sh", "-c", "cp -u -a \"${APP_HOME}\"/* \"${APP_RUNTIME}/\" && update-ca-certificates -f && exec \"./${APP_NAME}\" ${ARGS} -nofork" ]
+CMD  [ "/bin/sh", "-c", "cp -u -a \"${APP_HOME}\"/* \"${APP_RUNTIME}/\" && exec \"./${APP_NAME}\" ${ARGS} -nofork" ]
 VOLUME "${APP_RUNTIME}"
