@@ -1,0 +1,14 @@
+= SolarView D0
+Docker image for the SolarView proxy d0-fb 
+
+== Description
+This project contains the configuration to build a Docker image for the http://www.solarview.info/solarview_d0.aspx[SolarView proxy d0-fb] with GitLab CI.
+
+== Usage
+Build this project with GitLab CI. The build will create Docker images for the platforms `linux/i386` and `linux/arm/v7`, add labels, tag them with version and date and publish them to the Docker registry.
+
+== References
+* http://www.solarview.info/solarview_d0.aspx[SolarView proxy d0-fb]
+* http://www.solarview.info/solarview_linux.aspx[SolarView]
+* https://github.com/git-developer/solarview[Docker Compose examples]
+
