@@ -1,14 +1,19 @@
-= SolarView D0
-Docker image for the SolarView proxy d0-fb 
+= SolarView
+Docker image for the SolarView main application
 
 == Description
-This project contains the configuration to build a Docker image for the http://www.solarview.info/solarview_d0.aspx[SolarView proxy d0-fb] with GitLab CI.
+This project contains the configuration to build a Docker image for the http://www.solarview.info/solarview_linux.aspx[SolarView main application] with GitLab CI.
 
 == Usage
-Build this project with GitLab CI. The build will create Docker images for the platforms `linux/i386` and `linux/arm/v7`, add labels, tag them with version and date and publish them to the Docker registry.
+Build this project with GitLab CI. The build will
+
+* create Docker images for the platforms `linux/i386` and `linux/arm/v7`
+* add labels
+* tag them with version and date and
+* publish them to the Docker registry.
+
+SolarView uses `curl` for FTP and `CSmtp` for mail. Since the binaries in the original SolarView package are quite outdated, they are replaced by an up-to-date `curl` and a drop-in replacement for `CSmtp` that uses `curl` under the hood.
 
 == References
-* http://www.solarview.info/solarview_d0.aspx[SolarView proxy d0-fb]
 * http://www.solarview.info/solarview_linux.aspx[SolarView]
 * https://github.com/git-developer/solarview[Docker Compose examples]
-
