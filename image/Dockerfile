@@ -59,7 +59,7 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl && \
-    if [ "${TARGETARCH:-$(arch)}" = 'amd64' ]; then apt-get install -y libc6-i386; fi \
+    if [ "${TARGETARCH:-$(arch)}" = 'amd64' ]; then apt-get install -y libc6-i386; fi && \
     apt-get clean && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 WORKDIR "${APP_RUNTIME}"
