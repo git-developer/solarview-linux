@@ -26,11 +26,11 @@ RUN stat -c %y "${APP_ARCHIVE_FILE}" >.release_date
 RUN [ -z "${APP_BINARIES}" ] || { \
       target_arch="${TARGETARCH:-$(arch)}" && \
       case "${target_arch}" in \
-        386)    sv_arch=x86  ;; \
-        arm*)   sv_arch=rpi  ;; \
-        mips)   sv_arch=7390 ;; \
-        mipsel) sv_arch=71xx ;; \
-        *)      echo >&2 "Unsupported architecture: ${target_arch}" && exit 1;; \
+        386|amd64) sv_arch=x86  ;; \
+        arm*)      sv_arch=rpi  ;; \
+        mips)      sv_arch=7390 ;; \
+        mipsel)    sv_arch=71xx ;; \
+        *)         echo >&2 "Unsupported architecture: ${target_arch}" && exit 1;; \
       esac && \
       backup_dir="Andere/71xx" && \
       mkdir -p "${backup_dir}" && \
@@ -48,6 +48,7 @@ RUN ln -sf "${APP_HOME}/CSmtp.sh" CSmtp
 
 # runtime image
 FROM ${RUNTIME_BASE_IMAGE} AS runtime
+ARG TARGETARCH
 ARG APP_NAME
 ENV APP_NAME="${APP_NAME}"
 ENV APP_HOME="/opt/${APP_NAME}"
@@ -56,7 +57,10 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl && apt-get clean && \
+RUN apt-get update && \
+    apt-get install -y curl && \
+    if [ "${TARGETARCH:-$(arch)}" = 'amd64' ]; then apt-get install -y libc6-i386; fi \
+    apt-get clean && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 WORKDIR "${APP_RUNTIME}"
 # Workaround for a bug on armhf: the symlinks in /etc/ssl/certs/ with names
