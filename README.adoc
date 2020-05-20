@@ -13,6 +13,7 @@ Build this project with GitLab CI. The build will
 * publish them to the Docker registry.
 
 SolarView uses `curl` for FTP and `CSmtp` for mail. Since the binaries in the original SolarView package are quite outdated, they are replaced by an up-to-date `curl` and a drop-in replacement for `CSmtp` that uses `curl` under the hood.
+NOTE: `CSmtp` selects the mail protocol depending on the security of the transport layer (either `smtp://` or `smtps://`). This auto-detection does not work for all providers (e.g. web.de). To fix this problem, the environment variable `CSMTP_PROTOCOL` may be set to a protocol supported by the provider. Example: `CSMTP_PROTOCOL=smtp`
 
 == References
 * http://www.solarview.info/solarview_linux.aspx[SolarView]
