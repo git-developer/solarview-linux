@@ -5,7 +5,7 @@
 # stores the release date and selects the correct binaries for the architecture.
 # The second image prepares runtime dependencies and defines the start command.
 #
-ARG RUNTIME_BASE_IMAGE=debian:stable-slim
+ARG RUNTIME_BASE_IMAGE=alpine
 
 # builder image, prepares the runtime image
 FROM alpine AS builder
@@ -56,13 +56,10 @@ ENV APP_RUNTIME="/var/opt/${APP_NAME}"
 COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl && apt-get clean && \
+RUN apk add curl libc6-compat && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 WORKDIR "${APP_RUNTIME}"
-# Workaround for a bug on armhf: the symlinks in /etc/ssl/certs/ with names
-# xxxxxxx.0 are missing. update-ca-certificates -f recreates them.
-RUN update-ca-certificates -f
+
 # When the container is started, the files from the release archive are copied to
 # a runtime directory, which is mounted to the host. When a file on the host is
 # newer, it is not overwritten. This technique allows to update the binaries and
