@@ -26,11 +26,12 @@ RUN stat -c %y "${APP_ARCHIVE_FILE}" >.release_date
 RUN [ -z "${APP_BINARIES}" ] || { \
       target_arch="${TARGETARCH:-$(arch)}" && \
       case "${target_arch}" in \
-        386|amd64) sv_arch=x86  ;; \
-        arm*)      sv_arch=rpi  ;; \
-        mips)      sv_arch=7390 ;; \
-        mipsel)    sv_arch=71xx ;; \
-        *)         echo >&2 "Unsupported architecture: ${target_arch}" && exit 1;; \
+        amd64)  sv_arch=x64  ;; \
+        386)    sv_arch=x86  ;; \
+        arm*)   sv_arch=rpi  ;; \
+        mips)   sv_arch=7390 ;; \
+        mipsel) sv_arch=71xx ;; \
+        *)      echo >&2 "Unsupported architecture: ${target_arch}" && exit 1;; \
       esac && \
       backup_dir="Andere/71xx" && \
       mkdir -p "${backup_dir}" && \
@@ -59,7 +60,6 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y curl && \
-    if [ "${TARGETARCH:-$(arch)}" = 'amd64' ]; then apt-get install -y libc6-i386; fi && \
     apt-get clean && \
     ln -sf "$(which curl)" "${APP_HOME}/curl"
 WORKDIR "${APP_RUNTIME}"
