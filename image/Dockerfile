@@ -14,7 +14,7 @@ ARG APP_NAME
 RUN test -n "${APP_NAME}" || { echo >&2 "Missing build-arg: APP_NAME"; exit 1; }
 ARG APP_ARCHIVE_URL="http://www.solarview.info/downloads/${APP_NAME}.zip"
 ARG APP_ARCHIVE_FILE="/build/${APP_NAME}.zip"
-ARG APP_BINARIES="${APP_NAME}"
+ARG APP_BINARIES="${APP_NAME} busybox curl CSmtp"
 ARG APP_HOME="/opt/${APP_NAME}"
 
 WORKDIR "${APP_HOME}"
@@ -57,8 +57,9 @@ COPY --from=builder "${APP_HOME}" "${APP_HOME}"
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl && apt-get clean && \
-    ln -sf "$(which curl)" "${APP_HOME}/curl"
+RUN apt-get update && apt-get install -y curl busybox && apt-get clean && \
+    ln -sf "$(command -v curl)" "${APP_HOME}/curl" && \
+    ln -sf "$(command -v busybox)" "${APP_HOME}/busybox"
 WORKDIR "${APP_RUNTIME}"
 # Workaround for a bug on armhf: the symlinks in /etc/ssl/certs/ with names
 # xxxxxxx.0 are missing. update-ca-certificates -f recreates them.
