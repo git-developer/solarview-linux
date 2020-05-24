@@ -54,6 +54,7 @@ ENV APP_NAME="${APP_NAME}"
 ENV APP_HOME="/opt/${APP_NAME}"
 ENV APP_RUNTIME="/var/opt/${APP_NAME}"
 COPY --from=builder "${APP_HOME}" "${APP_HOME}"
+
 # curl is necessary for mail and ftp upload; the builtin version does not work on the
 # 386 architecture, so we use an external version
 ARG DEBIAN_FRONTEND=noninteractive
@@ -61,9 +62,17 @@ RUN apt-get update && apt-get install -y curl busybox && apt-get clean && \
     ln -sf "$(command -v curl)" "${APP_HOME}/curl" && \
     ln -sf "$(command -v busybox)" "${APP_HOME}/busybox"
 WORKDIR "${APP_RUNTIME}"
+
 # Workaround for a bug on armhf: the symlinks in /etc/ssl/certs/ with names
 # xxxxxxx.0 are missing. update-ca-certificates -f recreates them.
 RUN update-ca-certificates -f
+
+# rpi binaries are linked against ld-linux-armhf.so.3
+# which does not exist on debian arm/v6 (armel)
+RUN case "${TARGETARCH:-$(arch)}" in \
+      arm*) [ -e /lib/ld-linux-armhf.so.3 ] || [ ! -h /lib/ld-linux.so.3 ] || ln -s "$(realpath /lib/ld-linux.so.3)" /lib/ld-linux-armhf.so.3 ;; \
+    esac
+
 # When the container is started, the files from the release archive are copied to
 # a runtime directory, which is mounted to the host. When a file on the host is
 # newer, it is not overwritten. This technique allows to update the binaries and
