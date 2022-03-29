@@ -47,6 +47,9 @@ RUN [ -z "${APP_BINARIES}" ] || { \
 COPY CSmtp "${APP_HOME}/CSmtp.sh"
 RUN ln -sf "${APP_HOME}/CSmtp.sh" CSmtp
 
+# Prevent overwriting user settings on updates
+RUN settings="${APP_HOME}/homepage/jqplot/solarviewsettings.js" && if [ -f "${settings}" ]; then mv "${settings}" "${settings}.template"; fi
+
 # runtime image
 FROM ${RUNTIME_BASE_IMAGE} AS runtime
 ARG APP_NAME
