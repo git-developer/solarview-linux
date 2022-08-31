@@ -7,7 +7,7 @@ This project contains the configuration to build a Docker image for the http://w
 == Usage
 Build this project with GitLab CI. The build will
 
-* create Docker images for the platforms `linux/amd64`, `linux/i386`, `linux/arm/v7` and `linux/arm/v6`
+* create Docker images for the platforms `linux/amd64`, `linux/i386`, `linux/arm64`, `linux/arm/v7` and `linux/arm/v6`
 * add labels
 * tag them with version and date and
 * publish them to the Docker registry.
