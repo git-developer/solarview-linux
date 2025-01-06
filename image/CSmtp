@@ -6,32 +6,34 @@
 
 print_syntax() {
   echo "Syntax: $(basename $0) -e <hostname> -u <username> -l <password> -s <sender-address> -r <recipient-address> [-r1 <second-recipient-address>] [-rsms <third-recipient-address>] -sub <subject> -msg <hex-encoded-message> [-tls] [-ssl] [-sp <port>] [-d] | [-h] | [-help]"
-  return 0
 }
 
-[ "$1" ] || { print_syntax && return 0; }
+if [ -z "$1" ]; then
+  print_syntax
+  return 0
+fi
 
 # parse CSmtp command line arguments
 eval set -- $(getopt -a -l sub:,msg:,sp:,tls,ssl,r1:,rsms:,help -o e:u:l:s:r:dh -- "$@")
 while true; do
-    case "$1" in
-        -e)        host="$2"       ; shift 2 ;;
-        -u)        username="$2"   ; shift 2 ;;
-        -l)        password="$2"   ; shift 2 ;;
-        -s)        sender="$2"     ; shift 2 ;;
-        -r)        recipient="$2"  ; shift 2 ;;
-        --r1)      recipient2="$2" ; shift 2 ;;
-        --rsms)    recipient3="$2" ; shift 2 ;;
-        -d)        debug=true      ; shift 1 ;;
-        --sub)     subject="$2"    ; shift 2 ;;
-        --msg)     hex_msg="$2"    ; shift 2 ;;
-        --sp)      port="$2"       ; shift 2 ;;
-        --tls)     security=tls    ; shift 1 ;;
-        --ssl)     security=ssl    ; shift 1 ;;
-        -h|--help) print_syntax    ; return 0;;
-        --) shift ; break ;;
-        *) echo "Unsupported argument: $1" ; return 1 ;;
-    esac
+  case "$1" in
+    -e)        host="$2"       ; shift 2 ;;
+    -u)        username="$2"   ; shift 2 ;;
+    -l)        password="$2"   ; shift 2 ;;
+    -s)        sender="$2"     ; shift 2 ;;
+    -r)        recipient="$2"  ; shift 2 ;;
+    --r1)      recipient2="$2" ; shift 2 ;;
+    --rsms)    recipient3="$2" ; shift 2 ;;
+    -d)        debug=true      ; shift 1 ;;
+    --sub)     subject="$2"    ; shift 2 ;;
+    --msg)     hex_msg="$2"    ; shift 2 ;;
+    --sp)      port="$2"       ; shift 2 ;;
+    --tls)     security=tls    ; shift 1 ;;
+    --ssl)     security=ssl    ; shift 1 ;;
+    -h|--help) print_syntax    ; return 0;;
+    --) shift ; break ;;
+    *) echo "Unsupported argument: $1" ; return 1 ;;
+  esac
 done
 
 # prepare curl arguments
@@ -50,19 +52,19 @@ port="${port:-${default_port}}"
 verbose="${debug:+-v}"
 recipients="--mail-rcpt ${recipient}${recipient2:+ --mail-rcpt ${recipient2}}${recipient3:+ --mail-rcpt ${recipient3}}"
 
-# send mail via curl
-cat <<EOF | curl \
-     ${security:+"--ssl-reqd"} \
-     ${verbose} \
-     --url "${CSMTP_PROTOCOL:-${protocol}}://${host}:${port}" \
-     --mail-from "${sender}" \
-     ${recipients} \
-     --user "${username}:${password}" \
-     --upload-file -
-From: SolarView <${sender}>
-To: ${recipient}${recipient2:+,${recipient2}}${recipient3:+,${recipient3}}
-Subject: ${subject}
-Date: ${date}
-
-$(echo -n "${hex_msg}" | sed 's/\([0-9A-F]\{2\}\)/\\\\\\x\1/gI' | xargs printf)
-EOF
+# build message and send mail via curl
+{
+  printf 'From: SolarView <%s>\r\n' "${sender}"
+  printf 'To: %s%s%s\r\n' "${recipient}" "${recipient2:+,${recipient2}}" "${recipient3:+,${recipient3}}"
+  printf 'Subject: %s\r\n' "${subject}"
+  printf 'Date: %s\r\n' "${date}"
+  printf '\r\n'
+  printf '%s' "${hex_msg}" | sed 's/\([0-9A-F]\{2\}\)/\\\\\\x\1/gI' | xargs printf
+} | curl \
+  ${security:+"--ssl-reqd"} \
+  ${verbose} \
+  --url "${CSMTP_PROTOCOL:-${protocol}}://${host}:${port}" \
+  --mail-from "${sender}" \
+  ${recipients} \
+  --user "${username}:${password}" \
+  --upload-file -
